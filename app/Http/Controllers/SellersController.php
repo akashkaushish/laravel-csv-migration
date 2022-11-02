@@ -8,9 +8,12 @@ use App\Http\Requests\StoreSellerRequest;
 use App\Http\Requests\UpdateSellerRequest;
 use App\Models\Seller;
 use Illuminate\Http\Response;
+use App\Traits\ApiResponser;
 
 class SellersController extends Controller
 {
+    use ApiResponser;
+
     /**
      * Display a listing of the resource.
      *
@@ -20,8 +23,11 @@ class SellersController extends Controller
     {
         $sellers = Seller::all();
         return response()->json([
-            'data' => $sellers
-        ]);
+			'status'=> 'Success', 
+			'message' => 'success', 
+			'data' => $sellers
+		], 200);
+        
     }
 /**
      * Display the specified resource.
@@ -36,8 +42,11 @@ class SellersController extends Controller
         {
             $seller = Seller::where('uuid', '=', $uuid)->first(); 
             return response()->json([
+                'status'=> 'Success', 
+                'message' => 'success', 
                 'data' => $seller
-            ]);
+            ], 200);
+            
         }
         
     }
@@ -54,17 +63,21 @@ class SellersController extends Controller
         if($uuid)
         {
             $seller = Seller::where('uuid', '=', $uuid)->first(); 
+            $data = [
+                'contact_customer_fullname' => $seller->contact_customer_fullname,
+                'contact_type' => $seller->contact_type,
+                'contact_product_type_offered_id' => $seller->contact_product_type_offered_id,
+                'contact_product_type_offered' => $seller->contact_product_type_offered,
+                'contact_date' => $seller->contact_date,
+                'contact_region' => $seller->contact_region,
+                'country' => $seller->country
+            ];
             return response()->json([
-                'data' => [
-                    'contact_customer_fullname' => $seller->contact_customer_fullname,
-                    'contact_type' => $seller->contact_type,
-                    'contact_product_type_offered_id' => $seller->contact_product_type_offered_id,
-                    'contact_product_type_offered' => $seller->contact_product_type_offered,
-                    'contact_date' => $seller->contact_date,
-                    'contact_region' => $seller->contact_region,
-                    'country' => $seller->country
-                ]
-            ]);
+                'status'=> 'Success', 
+                'message' => 'success', 
+                'data' => $data
+            ], 200);
+            
         }
         
     }
@@ -81,17 +94,20 @@ class SellersController extends Controller
         if($uuid)
         {
             $seller = Seller::where('uuid', '=', $uuid)->first(); 
+            $data = [
+                'seller_firstname' => $seller->seller_firstname,
+                'seller_lastname' => $seller->seller_lastname,
+                'seller_id' => $seller->seller_id,
+                'sale_net_amount' => $seller->sale_net_amount,
+                'sale_gross_amount' => $seller->sale_gross_amount,
+                'sale_tax_rate' => $seller->sale_tax_rate,
+                'sale_product_total_cost' => $seller->sale_product_total_cost
+            ];
             return response()->json([
-                'data' => [
-                    'seller_firstname' => $seller->seller_firstname,
-                    'seller_lastname' => $seller->seller_lastname,
-                    'seller_id' => $seller->seller_id,
-                    'sale_net_amount' => $seller->sale_net_amount,
-                    'sale_gross_amount' => $seller->sale_gross_amount,
-                    'sale_tax_rate' => $seller->sale_tax_rate,
-                    'sale_product_total_cost' => $seller->sale_product_total_cost
-                ]
-            ]);
+                'status'=> 'Success', 
+                'message' => 'success', 
+                'data' => $data
+            ], 200);
         }
         
     }
@@ -120,7 +136,7 @@ class SellersController extends Controller
     public function create()
     {
         //
-        return 'am here ';
+        
     }
 
     /**
@@ -143,12 +159,10 @@ class SellersController extends Controller
             $maxFileSize = 12582912; // Uploaded file size limit is 10mb
 
             if (!in_array(strtolower($extension), $valid_extension)) {
-                return response()->json([
-                    'error' => 'Invalid file extension.'], 415); exit;
+                return $this->errorResponse('Invalid file extension.',415);
             }
             if ($fileSize > $maxFileSize) {
-                return response()->json([
-                    'error' => 'File size is too large.'], 413); exit;
+                return $this->errorResponse('File size is too large.',413); exit;
             }
 
             //Where uploaded file will be stored on the server 
@@ -213,12 +227,16 @@ class SellersController extends Controller
                     }
                 }
             }
-            
             return response()->json([
-                'message' => 'File imported successfully.'], 200); 
+                'status'=> 'Success', 
+                'message' => 'File imported successfully.', 
+                'data' => []
+            ], 200);
+            
         }
-        return response()->json([
-            'error' => 'No file was uploaded.'], 413);
+
+        return $this->errorResponse('No file was uploaded.',413);
+        
     }
 
     /**
